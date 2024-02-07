@@ -10,7 +10,10 @@
 
 ## Demo
 
-[![Video Title](./media/click.png)](https://www.youtube.com/watch?v=wn5hawCrVMY "SmartCart - Demo")
+<a href="https://www.youtube.com/watch?v=wn5hawCrVMY" title="SmartCart - Demo">
+  <img src="./media/click.png" alt="Video Title" width="600" style="max-width:100%;">
+</a>
+
 
 
 ## Run Locally
