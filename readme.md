@@ -1,4 +1,4 @@
-# SmartCart
+# SmartCart 🛒
 
 "SmartCart" 🛒 is a game-changer for e-commerce, designed to revolutionize online shopping with predictive insights 🎯. It's perfect for e-commerce businesses looking to up their game by understanding customer behaviors 📊, providing tailored recommendations 🎁, and optimizing sales strategies 💡. By leveraging advanced data analysis, SmartCart helps businesses connect with their customers like never before, making it an essential tool for anyone in the e-commerce industry aiming to stay ahead of the curve 🚀.
 ## Features
