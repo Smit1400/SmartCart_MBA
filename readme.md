@@ -11,7 +11,7 @@
 ## Demo
 
 <a href="https://www.youtube.com/watch?v=wn5hawCrVMY" title="SmartCart - Demo">
-  <img src="./media/click.png" alt="Video Title" width="600" height="600" style="max-width:100%;">
+  <img src="./media/click.png" alt="Video Title" width="600" height="500" style="max-width:100%;">
 </a>
 
 
