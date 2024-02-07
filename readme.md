@@ -10,7 +10,7 @@
 
 ## Demo
 
-[![Video Title](http://img.youtube.com/vi/wn5hawCrVMY/0.jpg)](https://www.youtube.com/watch?v=wn5hawCrVMY "SmartCart - Demo")
+[![Video Title](./media/click.png)](https://www.youtube.com/watch?v=wn5hawCrVMY "SmartCart - Demo")
 
 
 ## Run Locally
