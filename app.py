@@ -6,6 +6,7 @@ from eda_app import exploratory_data_analysis
 from mlxtend.frequent_patterns import apriori, association_rules, fpgrowth
 from collaborative_filtering import CollaborativeFiltering
 import multiprocessing
+from predict_quantity import predict_quantity
 
 
 def recommend(rules, current_cart):
@@ -294,4 +295,5 @@ elif menu == "Exploratory Data Analysis":
         st.write(df)
 
 else:
-    st.write("Predict Quantity")
+    data = pd.read_csv('./data.csv')
+    predict_quantity(data)
