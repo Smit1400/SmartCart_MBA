@@ -7,6 +7,7 @@ from mlxtend.frequent_patterns import apriori, association_rules, fpgrowth
 from collaborative_filtering import CollaborativeFiltering
 import multiprocessing
 from predict_quantity import predict_quantity
+import requests
 
 
 def recommend(rules, current_cart):
@@ -317,9 +318,12 @@ else:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        response = f"Echo: {prompt}"
+        with st.spinner("Calling the API....."):
+            response = requests.put("http://127.0.0.1:8000/csv_agent/", json = {'query': prompt})
+            result = response.json()
+        # response = f"Echo: {prompt}"
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            st.markdown(response)
+            st.markdown(result['Output'])
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": result['Output']})
