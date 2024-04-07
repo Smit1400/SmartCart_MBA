@@ -8,6 +8,7 @@ from collaborative_filtering import CollaborativeFiltering
 import multiprocessing
 from predict_quantity import predict_quantity
 import requests
+import json
 
 
 def recommend(rules, current_cart):
@@ -44,11 +45,11 @@ def load_data():
     df["year"] = df["Date"].dt.year
     return df
 
+
 @st.cache_resource
 def initialize_collaborative_filtering(df):
     cf = CollaborativeFiltering(df)
     return cf
-    
 
 
 @st.cache_resource
@@ -80,7 +81,13 @@ st.caption(
 
 menu = st.sidebar.selectbox(
     "Select Options",
-    ("Market Basket Analysis", "Exploratory Data Analysis", "Predict Quantity", "Talk with the dataset"),
+    (
+        "Market Basket Analysis",
+        "Exploratory Data Analysis",
+        "Predict Quantity",
+        "Talk with the dataset",
+        "Get Actionable Insights",
+    ),
 )
 
 df = load_data()
@@ -101,10 +108,13 @@ if "min_support" not in st.session_state:
 
 if "run" not in st.session_state:
     st.session_state.run = False
-    
+
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+if "multi_agent" not in st.session_state:
+    st.session_state.multi_agent = []
 
 
 def run_button():
@@ -116,7 +126,6 @@ def change_button_status():
 
 
 if menu == "Market Basket Analysis":
-
     toggle = st.sidebar.toggle("MBA on Full Data")
 
     if not toggle:
@@ -163,7 +172,6 @@ if menu == "Market Basket Analysis":
             and st.session_state.season != "Select"
             and st.session_state.min_support > 0.0
         ):
-
             df_country = df[df["Country"] == st.session_state.country].copy()
 
             if st.session_state.season == "JAN - SEPT":
@@ -184,7 +192,6 @@ if menu == "Market Basket Analysis":
             run = st.button("Run", on_click=run_button)
 
             if st.session_state.run:
-
                 with st.spinner("Running FPGrowth......"):
                     rules = run_fpgrowth(fdf, st.session_state.min_support)
                     st.success("FPGrwoth implemented successfully...")
@@ -244,25 +251,28 @@ if menu == "Market Basket Analysis":
                     with st.container(border=True, height=200):
                         for index, items in enumerate(recommended_items):
                             st.text(f"{index+1}. {items}")
-                            
+
         elif algorithm == "Collaborative Filtering":
             with st.spinner("Initializing Collabortive Filtering Class...."):
                 collaborative_filtering = initialize_collaborative_filtering(df)
                 st.success("Successfully Initialised")
-            
+
             with st.expander("What is Collaborative Filtering?"):
                 with st.container():
-                    st.text("""
+                    st.text(
+                        """
                             Collaborative filtering is like having a bunch of friends who share their shopping lists with you! 
                             🛍️ Imagine you and your friends all shop at the same giant online store. You all buy different things, 
                             but sometimes you buy things that others have bought too. Collaborative filtering takes note of what 
                             you and others buy, and when it spots a pattern—like you and your friend both buying funky socks and 
                             a cool mug—it thinks, "Aha! Since you both liked those, maybe you'll like this other quirky notebook 
                             your friend bought!" 📓✨
-                            """)
-                
+                            """
+                    )
+
             with st.expander("How does it work for our data?"):
-                st.text("""
+                st.text(
+                    """
                         For our e-commerce data, think of each row as a shopping trip by a customer. 
                         The collaborative filtering algorithm plays the role of a super-observant friend
                         who remembers every item bought by every customer. It then uses this massive shopping 
@@ -270,16 +280,19 @@ if menu == "Market Basket Analysis":
                         vintage tins, and Customer A also bought a vintage clock, the algorithm might suggest 
                         that vintage clock to Customer B. It's all about connecting the dots between customers' 
                         purchases to find hidden gems you might love! 🕵️‍♂️💎
-                        """)
-            
+                        """
+                )
+
             userIdList = df["CustomerNo"].unique()
             userIdList = np.array(userIdList)
             select = np.array(["Select"])
             userIdList = np.concatenate((select, userIdList))
             userId = st.selectbox("Select any User by their User ID", userIdList)
-            
+
             if userId != "Select":
-                recommended_items = collaborative_filtering.recommend_products_for_user(user_id=float(userId), top_n=5)
+                recommended_items = collaborative_filtering.recommend_products_for_user(
+                    user_id=float(userId), top_n=5
+                )
 
                 if len(recommended_items) == 0:
                     st.text("No Recommendations for this product.")
@@ -300,16 +313,15 @@ elif menu == "Exploratory Data Analysis":
         st.write(df)
 
 elif menu == "Predict Quantity":
-    data = pd.read_csv('./data.csv')
+    data = pd.read_csv("./data.csv")
     predict_quantity(data)
-    
-else:
-    
+
+elif menu == "Talk with the dataset":
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-    
+
     # React to user input
     if prompt := st.chat_input("What do you want to know about the data?"):
         # Display user message in chat message container
@@ -317,13 +329,66 @@ else:
             st.markdown(prompt)
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
-        
+
         with st.spinner("Awating response from API......"):
-            response = requests.put("http://127.0.0.1:8000/csv_agent/", json = {'query': prompt})
+            response = requests.put(
+                "http://127.0.0.1:8000/csv_agent/", json={"query": prompt}
+            )
             result = response.json()
         # response = f"Echo: {prompt}"
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            st.markdown(result['Output'])
+            st.markdown(result["Output"])
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": result['Output']})
+        st.session_state.messages.append(
+            {"role": "assistant", "content": result["Output"]}
+        )
+
+else:
+    # Display chat messages from history on app rerun
+    for message in st.session_state.multi_agent:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # React to user input
+    if prompt := st.chat_input(
+        "Specify the country for which you want insights and charts"
+    ):
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        # Add user message to chat history
+        st.session_state.multi_agent.append({"role": "user", "content": prompt})
+
+        with st.spinner("Awating response from API......"):
+            response = requests.put(
+                "http://127.0.0.1:8000/multi_agent/",
+                data=json.dumps(
+                    {"query": prompt}
+                ),  # Convert the dictionary to a JSON string
+                headers={
+                    "Content-Type": "application/json"
+                },  # Indicate that the payload is JSON
+            )
+            result = response.json()
+        # response = f"Echo: {prompt}"
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            if "pdf" in result["Output"].lower():
+                # Provide a button to download the PDF
+                with open("sales_report.pdf", "rb") as pdf_file:
+                    st.download_button(
+                        label="Download detailed chart analysis",
+                        data=pdf_file,
+                        file_name="sales_report.pdf",
+                        mime="application/octet-stream",
+                    )
+                    st.session_state.multi_agent.append(
+                        {"role": "assistant", "content": "pdf"}
+                    )
+            else:
+                st.markdown(result["Output"])
+                st.session_state.multi_agent.append(
+                    {"role": "assistant", "content": result["Output"]}
+                )
+        # Add assistant response to chat history

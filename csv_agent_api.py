@@ -12,35 +12,36 @@ from langchain_community.llms import OpenAI
 from langchain_community.chat_models import ChatOpenAI
 from langchain_experimental.agents.agent_toolkits import create_csv_agent
 from langchain.agents.agent_types import AgentType
-from dotenv import load_dotenv, dotenv_values 
+from dotenv import load_dotenv, dotenv_values
 
 load_dotenv()
 
 
 def initilize_api_keys():
-    """ This function sets environment variable """
+    """This function sets environment variable"""
     openai_api_key = os.getenv("OPENAI_API_KEY")
     langchain_api_key = os.getenv("LANGCHAIN_API_KEY")
-    os.environ["LANGCHAIN_TRACING_V2"] = 'true'
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
     os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
     os.environ["LANGCHAIN_API_KEY"] = langchain_api_key
-    os.environ["LANGCHAIN_PROJECT"] ="multi-agent"
-    os.environ['OPENAI_API_KEY'] = openai_api_key
-    
+    os.environ["LANGCHAIN_PROJECT"] = "multi-agent"
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+
+
 def create_csv_agent_function(file_path):
+    file_path = file_path
 
-    file_path= file_path
+    csv_agent = create_csv_agent(
+        ChatOpenAI(temperature=0, model="gpt-4"),
+        file_path,
+        verbose=True,
+        stop=["\nObservation:"],
+        agent_type=AgentType.OPENAI_FUNCTIONS,
+        handle_parsing_errors=True,
+    )
 
-    csv_agent= create_csv_agent(
-            ChatOpenAI(temperature=0, model="gpt-4"),
-            file_path, 
-            verbose=True,
-            stop=["\nObservation:"],
-            agent_type=AgentType.OPENAI_FUNCTIONS,
-            handle_parsing_errors=True
-        )
-        
     return csv_agent
+
 
 def create_prompt():
     prompt = """ You are a question-answering bot over the data you queried from dataframes.
@@ -67,10 +68,13 @@ def create_prompt():
                 Question:"""
     return prompt
 
+
 class InputQuery(BaseModel):
     query: str
 
+
 app = FastAPI()
+
 
 @app.put("/csv_agent/")
 def csv_agent_api(query: InputQuery):
@@ -78,4 +82,4 @@ def csv_agent_api(query: InputQuery):
     csv_agent = create_csv_agent_function("data.csv")
     prompt = create_prompt()
     output = csv_agent(prompt + query.query)
-    return {'Query': query.query, 'Output': output['output']}
+    return {"Query": query.query, "Output": output["output"]}
