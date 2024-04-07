@@ -318,7 +318,7 @@ else:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        with st.spinner("Calling the API....."):
+        with st.spinner("Awating response from API......"):
             response = requests.put("http://127.0.0.1:8000/csv_agent/", json = {'query': prompt})
             result = response.json()
         # response = f"Echo: {prompt}"
