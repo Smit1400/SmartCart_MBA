@@ -384,7 +384,7 @@ else:
                         mime="application/octet-stream",
                     )
                     st.session_state.multi_agent.append(
-                        {"role": "assistant", "content": "pdf"}
+                        {"role": "assistant", "content": "PDF generated."}
                     )
             else:
                 st.markdown(result["Output"])

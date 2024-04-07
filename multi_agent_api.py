@@ -47,12 +47,12 @@ os.environ["LANGCHAIN_API_KEY"] = langchain_api_key
 os.environ["LANGCHAIN_PROJECT"] = "multi-agent"
 os.environ["OPENAI_API_KEY"] = openai_api_key
 
-model = ChatOpenAI(temperature=0, max_tokens=1024, model_name="gpt-4")
+model = ChatOpenAI(temperature=0, max_tokens=1024, model_name="gpt-4-turbo-preview")
 
 file_path = "data.csv"
 
 csv_agent = create_csv_agent(
-    ChatOpenAI(temperature=0, model="gpt-4"),
+    ChatOpenAI(temperature=0, model="gpt-4-turbo-preview"),
     file_path,
     verbose=True,
     stop=["\nObservation:"],
@@ -74,7 +74,7 @@ def get_actionable_insights(input: str):
 
 @tool("chart_pdf", return_direct=False)
 def get_charts_pdf(input: str):
-    """Returns python executable code that first loads data.csv and generates a pdf with charts"""
+    """Returns python executable code that first loads data.csv and generates a pdf with charts and in the end save it as 'sales_report.pdf'"""
     question = f"Give me a detailed report for {input}"
 
     prompt = (
